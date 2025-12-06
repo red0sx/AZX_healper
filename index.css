@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f0f4f8;
+    background-image: 
+      linear-gradient(#e0e7ef 1px, transparent 1px),
+      linear-gradient(90deg, #e0e7ef 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: #2d3342;
+  }
+
+  /* Force pixel art look */
+  * {
+    border-radius: 0px !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: #fffdf5; border-left: 2px solid #2d3342; }
+::-webkit-scrollbar-thumb { background: #5d7691; border: 2px solid #2d3342; box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3); }
+::-webkit-scrollbar-thumb:hover { background: #2d3342; }
+
+.pixel-text-shadow {
+  text-shadow: 2px 2px 0px #e0e7ef;
+}
+
+.notebook-lines {
+  background-image: repeating-linear-gradient(transparent, transparent 31px, #e0e7ef 31px, #e0e7ef 32px);
+}
+
+.blink-text {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

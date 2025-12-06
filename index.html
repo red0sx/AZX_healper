@@ -4,73 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AZX Solver</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['"VT323"', 'monospace'],
-            },
-            colors: {
-              'retro-paper': '#fffdf5',
-              'retro-dark': '#2d3342',
-              'retro-border': '#1a1c2c',
-              'retro-blue': '#5d7691', // Bucket color
-              'retro-blue-light': '#7a93b0',
-              'retro-red': '#d95763', // Accent red
-              'retro-green': '#99e550',
-              'retro-grid': '#e0e7ef',
-            },
-            boxShadow: {
-              'pixel': '4px 4px 0px 0px #2d3342',
-              'pixel-sm': '2px 2px 0px 0px #2d3342',
-              'pixel-lg': '8px 8px 0px 0px #2d3342',
-              'pixel-inset': 'inset 2px 2px 0px 0px rgba(0,0,0,0.2)',
-            }
-          },
-        },
-      }
-    </script>
-    <style>
-      body {
-        background-color: #f0f4f8;
-        background-image: 
-          linear-gradient(#e0e7ef 1px, transparent 1px),
-          linear-gradient(90deg, #e0e7ef 1px, transparent 1px);
-        background-size: 20px 20px;
-        color: #2d3342;
-      }
-
-      /* Force pixel art look */
-      * {
-        border-radius: 0px !important;
-      }
-
-      ::-webkit-scrollbar { width: 16px; height: 16px; }
-      ::-webkit-scrollbar-track { background: #fffdf5; border-left: 2px solid #2d3342; }
-      ::-webkit-scrollbar-thumb { background: #5d7691; border: 2px solid #2d3342; box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3); }
-      ::-webkit-scrollbar-thumb:hover { background: #2d3342; }
-      
-      .pixel-text-shadow {
-        text-shadow: 2px 2px 0px #e0e7ef;
-      }
-      
-      .notebook-lines {
-        background-image: repeating-linear-gradient(transparent, transparent 31px, #e0e7ef 31px, #e0e7ef 32px);
-      }
-    </style>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
     "vite": "https://aistudiocdn.com/vite@^7.2.6",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0"
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
   }
 }
 </script>
@@ -78,6 +22,7 @@
 </head>
   <body class="antialiased h-screen overflow-hidden font-sans selection:bg-retro-red selection:text-white text-xl">
     <div id="root" class="h-full"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
