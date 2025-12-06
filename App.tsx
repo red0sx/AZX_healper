@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Camera, RotateCcw, Info, Upload, AlertCircle, ArrowLeft, Image as ImageIcon, Loader2, X, Settings, Key, Check, ShieldCheck } from 'lucide-react';
-import { Grid, SolverStatus } from './types';
-import { parseGridFromImage } from './services/geminiService';
-import { findSolutions } from './services/solverService';
-import SolutionSidebar from './components/SolutionSidebar';
+import { Camera, RotateCcw, Info, Upload, AlertCircle, ArrowLeft, Image as ImageIcon, Loader2, X, Settings, Key, Check, ShieldCheck, Gamepad2, Grid3X3, Zap } from 'lucide-react';
+import { Grid, SolverStatus } from './types.ts';
+import { parseGridFromImage } from './services/geminiService.ts';
+import { findSolutions } from './services/solverService.ts';
+import SolutionSidebar from './components/SolutionSidebar.tsx';
 
 const App: React.FC = () => {
   const [initialGrid, setInitialGrid] = useState<Grid>([]);
@@ -11,7 +11,7 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<SolverStatus>(SolverStatus.IDLE);
   const [hoveredSolutionId, setHoveredSolutionId] = useState<string | null>(null);
   const [selectedSolutionId, setSelectedSolutionId] = useState<string | null>(null);
-  const [loadingMessage, setLoadingMessage] = useState<string>("Initializing...");
+  const [loadingMessage, setLoadingMessage] = useState<string>("Analyzing Grid...");
   const [apiKey, setApiKey] = useState<string>('');
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [tempKey, setTempKey] = useState<string>('');
@@ -67,7 +67,7 @@ const App: React.FC = () => {
           }
         } catch (err) {
           console.error(err);
-          setCameraError("Camera access denied. Please check permissions.");
+          setCameraError("Oops! Can't see the camera.");
         }
       })();
     }
@@ -84,7 +84,7 @@ const App: React.FC = () => {
       return;
     }
     setStatus(SolverStatus.ANALYZING);
-    setLoadingMessage("Analyzing image...");
+    setLoadingMessage("Reading Game Data...");
     try {
       const newGrid = await parseGridFromImage(src, apiKey);
       if (!newGrid || newGrid.length === 0) {
@@ -181,20 +181,24 @@ const App: React.FC = () => {
     setSelectedSolutionId(null);
   };
 
+  // --- Render Components ---
+
   if (isCameraOpen) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans">
         <div className="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
           {cameraError ? (
-            <div className="flex flex-col items-center justify-center p-6 text-center max-w-sm">
-              <AlertCircle size={48} className="text-red-500 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Camera Error</h3>
-              <p className="text-gray-400 mb-6">{cameraError}</p>
+            <div className="flex flex-col items-center justify-center p-8 text-center max-w-sm bg-retro-paper border-4 border-retro-dark shadow-pixel">
+              <div className="text-retro-red mb-4">
+                 <AlertCircle size={48} />
+              </div>
+              <h3 className="text-2xl font-bold text-retro-dark mb-4 font-mono">CAMERA_ERR</h3>
+              <p className="text-retro-dark mb-6">{cameraError}</p>
               <button 
                 onClick={() => setIsCameraOpen(false)}
-                className="px-6 py-2 bg-white text-black rounded-full font-medium active:scale-95 transition-transform"
+                className="px-6 py-3 bg-retro-red text-white font-bold border-2 border-retro-dark shadow-pixel active:translate-y-1 active:shadow-none"
               >
-                Close Camera
+                CLOSE
               </button>
             </div>
           ) : (
@@ -206,9 +210,13 @@ const App: React.FC = () => {
                 muted 
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 pointer-events-none border-[12px] border-retro-dark/50"></div>
+              {/* Scanlines effect */}
+              <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] z-10"></div>
+              
               <button 
                 onClick={() => setIsCameraOpen(false)}
-                className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full z-10"
+                className="absolute top-6 right-6 p-3 bg-retro-red border-4 border-retro-dark text-white z-20 shadow-pixel active:translate-y-1 active:shadow-none"
               >
                 <X size={24} />
               </button>
@@ -216,12 +224,12 @@ const App: React.FC = () => {
           )}
         </div>
         {!cameraError && (
-          <div className="h-24 bg-black flex items-center justify-center gap-8 pb-4">
+          <div className="h-32 bg-retro-dark flex items-center justify-center gap-8 border-t-4 border-white/20">
              <button 
                onClick={capturePhoto}
-               className="w-16 h-16 rounded-full bg-white border-4 border-gray-300 flex items-center justify-center active:scale-95 transition-transform"
+               className="w-20 h-20 bg-retro-paper border-4 border-white rounded-full flex items-center justify-center active:bg-gray-200 transition-colors"
              >
-               <div className="w-14 h-14 rounded-full bg-white border-2 border-black" />
+               <div className="w-16 h-16 bg-retro-red border-4 border-retro-dark rounded-full" />
              </button>
           </div>
         )}
@@ -231,53 +239,46 @@ const App: React.FC = () => {
 
   if (showSettings) {
     return (
-      <div className="min-h-screen bg-azx-bg flex flex-col items-center justify-center p-6 font-sans">
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl max-w-md w-full">
-          <div className="flex items-center gap-3 mb-6 text-azx-blue">
-            <Settings size={28} />
-            <h2 className="text-2xl font-bold">App Setup</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="bg-retro-paper border-4 border-retro-dark shadow-pixel p-8 w-full max-w-lg relative">
+          <div className="bg-retro-dark text-white text-center py-2 -mx-8 -mt-8 mb-8 border-b-4 border-retro-dark">
+             <h2 className="text-3xl font-bold tracking-widest">+ CONFIG +</h2>
           </div>
-          <div className="mb-6">
-            <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-              To use this tool, you need a <strong>Google Gemini API Key</strong>. 
-            </p>
-            <ol className="list-decimal list-inside text-xs text-gray-500 space-y-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
-              <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-azx-accent hover:underline">Google AI Studio</a>.</li>
-              <li>Click "Create API Key".</li>
-              <li>Paste the key below.</li>
-            </ol>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">API Key</label>
-              <div className="relative">
-                <input 
-                  type="password" 
-                  value={tempKey}
-                  onChange={(e) => setTempKey(e.target.value)}
-                  placeholder="AIzaSy..."
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-azx-accent focus:border-azx-accent outline-none font-mono text-sm"
-                />
-                <Key className="absolute left-3 top-3.5 text-gray-400" size={16} />
+          
+          <div className="space-y-6">
+            <div className="border-2 border-dashed border-retro-dark/50 p-4 bg-white">
+              <p className="text-xl mb-2 flex items-center gap-2">
+                <Key size={20} /> API ACCESS
+              </p>
+              <div className="text-base text-gray-600 mb-4 font-sans">
+                Enter your Gemini API Key to enable the solver service.
               </div>
-              <p className="text-[10px] text-gray-400 mt-2 flex items-center gap-1">
-                <ShieldCheck size={12}/> Stored locally in your browser.
+              <input 
+                type="password" 
+                value={tempKey}
+                onChange={(e) => setTempKey(e.target.value)}
+                placeholder="Paste key here..."
+                className="w-full p-3 bg-retro-grid border-2 border-retro-dark focus:outline-none focus:bg-white focus:border-retro-blue text-xl font-mono"
+              />
+              <p className="text-sm text-gray-500 mt-2 flex items-center gap-2">
+                <ShieldCheck size={14}/> Stored locally on device
               </p>
             </div>
+            
             <button 
               onClick={saveApiKey}
               disabled={!tempKey}
-              className="w-full bg-azx-accent text-white font-bold py-3 rounded-xl shadow-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-retro-blue text-white font-bold text-2xl py-4 border-4 border-retro-dark shadow-pixel hover:bg-retro-blue-light active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-              <Check size={18} />
-              Save & Continue
+              INITIALIZE <Check size={28} />
             </button>
+            
             {apiKey && (
               <button 
                 onClick={() => setShowSettings(false)}
-                className="w-full text-gray-500 text-sm hover:text-gray-700 py-2"
+                className="w-full text-retro-dark hover:underline py-2 font-bold text-lg"
               >
-                Cancel
+                [ RETURN ]
               </button>
             )}
           </div>
@@ -288,69 +289,86 @@ const App: React.FC = () => {
 
   if (grid.length === 0) {
     return (
-      <div className="min-h-screen bg-azx-bg flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileSelect} />
+        
         <button 
           onClick={() => { setTempKey(apiKey); setShowSettings(true); }}
-          className="absolute top-6 right-6 p-2 text-gray-400 hover:text-azx-blue transition-colors z-20"
+          className="absolute top-6 right-6 p-3 bg-retro-paper border-2 border-retro-dark text-retro-dark shadow-pixel-sm hover:translate-y-1 active:shadow-none transition-all z-20"
         >
           <Settings size={24} />
         </button>
+
         {status === SolverStatus.ANALYZING && (
-          <div className="absolute inset-0 z-50 bg-white/90 flex flex-col items-center justify-center backdrop-blur-sm">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-azx-accent border-t-transparent rounded-full animate-spin mb-4"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 size={24} className="text-azx-accent animate-pulse" />
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-700 animate-pulse">{loadingMessage}</p>
+          <div className="absolute inset-0 z-50 bg-retro-dark/80 flex flex-col items-center justify-center">
+             <div className="bg-retro-paper p-8 border-4 border-white shadow-pixel-lg flex flex-col items-center max-w-sm text-center">
+                <Loader2 size={64} className="text-retro-blue animate-spin mb-4" />
+                <p className="text-2xl font-bold text-retro-dark blink-text">{loadingMessage}</p>
+             </div>
           </div>
         )}
+
         {status === SolverStatus.ERROR && (
-           <div className="absolute top-10 z-50 bg-red-100 border border-red-300 text-red-700 px-6 py-4 rounded-xl shadow-lg animate-fade-in-down flex items-center gap-3">
-             <AlertCircle size={24} />
+           <div className="absolute top-10 z-50 bg-retro-paper border-4 border-retro-red text-retro-red px-6 py-4 shadow-pixel flex items-center gap-4">
+             <AlertCircle size={32} />
              <div>
-               <p className="font-bold">Scan Failed</p>
-               <p className="text-sm">Could not analyze the image. Please try again.</p>
+               <p className="font-bold text-xl">ERROR</p>
+               <p className="text-base">SCAN FAILED. RETRY.</p>
              </div>
            </div>
         )}
-        <div className="w-full max-w-md mx-auto text-center z-10">
-          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-azx-blue to-azx-accent mb-8 tracking-tight">
-            AZX Service Helper
-          </h1>
-          <div className="space-y-4">
+
+        <div className="w-full max-w-lg mx-auto text-center z-10">
+          <div className="mb-12 relative inline-block border-4 border-retro-dark bg-retro-paper p-6 shadow-pixel-lg rotate-1">
+             <div className="absolute -top-3 -left-3 w-6 h-6 bg-retro-grid border-2 border-retro-dark rounded-full"></div>
+             <div className="absolute -top-3 -right-3 w-6 h-6 bg-retro-grid border-2 border-retro-dark rounded-full"></div>
+             <h1 className="text-5xl md:text-6xl font-bold text-retro-dark tracking-tighter leading-none mb-2">
+              AZX HELPER
+            </h1>
+            <div className="text-xl bg-retro-dark text-white px-2 py-1 inline-block">SERVICE TIME</div>
+          </div>
+          
+          <div className="space-y-6 px-4">
             <button 
               onClick={() => setIsCameraOpen(true)}
               disabled={status === SolverStatus.ANALYZING || !apiKey}
-              className="w-full group relative flex items-center justify-center gap-4 p-5 bg-azx-accent text-white rounded-2xl shadow-lg hover:bg-blue-400 hover:shadow-blue-400/30 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-between p-4 bg-retro-blue text-white border-4 border-retro-dark shadow-pixel hover:bg-retro-blue-light active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
             >
-              <div className="bg-white/20 p-2 rounded-full group-hover:scale-110 transition-transform">
-                <Camera size={24} />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-black/20 flex items-center justify-center border-2 border-black/10">
+                  <Camera size={28} />
+                </div>
+                <div className="text-left">
+                  <span className="block text-2xl font-bold">START SCAN</span>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="block text-lg font-bold">Open Camera</span>
-                <span className="block text-xs opacity-90">Scan directly</span>
+              <div className="px-3 py-1 bg-black/20 text-sm font-bold">
+                 [Q]
               </div>
             </button>
+
             <button 
               onClick={() => fileInputRef.current?.click()}
               disabled={status === SolverStatus.ANALYZING || !apiKey}
-              className="w-full group relative flex items-center justify-center gap-4 p-5 bg-white text-gray-700 border-2 border-gray-100 rounded-2xl shadow-sm hover:border-azx-accent hover:shadow-md transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-between p-4 bg-retro-paper text-retro-dark border-4 border-retro-dark shadow-pixel hover:bg-white active:translate-y-1 active:shadow-none transition-all disabled:opacity-50"
             >
-              <div className="bg-gray-100 p-2 rounded-full group-hover:bg-blue-50 group-hover:text-azx-accent transition-colors">
-                <ImageIcon size={24} />
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 bg-retro-grid flex items-center justify-center border-2 border-retro-dark/10">
+                  <ImageIcon size={28} />
+                </div>
+                <div className="text-left">
+                  <span className="block text-2xl font-bold">LOAD IMAGE</span>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="block text-lg font-bold">Upload Image</span>
-                <span className="block text-xs text-gray-400">From gallery</span>
+               <div className="px-3 py-1 bg-retro-grid text-sm font-bold border border-retro-dark/20">
+                 [W]
               </div>
             </button>
           </div>
-          <div className="mt-12 text-sm text-gray-400 flex items-center justify-center gap-2">
-            <Info size={14} />
-            <p>You can also paste (Ctrl+V) a screenshot.</p>
+
+          <div className="mt-12 text-retro-dark/60 flex items-center justify-center gap-2 font-bold text-lg">
+            <Info size={20} />
+            <p>CTRL+V TO PASTE</p>
           </div>
         </div>
       </div>
@@ -358,97 +376,108 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 overflow-hidden font-sans text-gray-900">
+    <div className="flex flex-col h-screen overflow-hidden font-sans text-retro-dark">
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileSelect} />
-      <header className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shadow-sm z-30 shrink-0 h-14">
-        <button 
-          onClick={goHome}
-          className="flex items-center gap-2 text-gray-600 hover:text-azx-blue hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm"
-        >
-          <ArrowLeft size={18} />
-          <span>Home</span>
-        </button>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={resetGrid}
-            className="p-2 text-gray-500 hover:text-azx-blue hover:bg-gray-100 rounded-full transition-colors"
-            title="Reset Puzzle"
-          >
-            <RotateCcw size={20} />
-          </button>
-          <div className="h-6 w-px bg-gray-200 mx-1"></div>
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="p-2 text-gray-500 hover:text-azx-blue hover:bg-gray-100 rounded-full transition-colors"
-            title="Upload New"
-            disabled={status === SolverStatus.ANALYZING}
-          >
-            <Upload size={20} />
-          </button>
-          <button 
-            onClick={() => setIsCameraOpen(true)}
-            className="p-2 text-azx-accent hover:bg-blue-50 rounded-full transition-colors"
-            title="Scan New"
-            disabled={status === SolverStatus.ANALYZING}
-          >
-             {status === SolverStatus.ANALYZING ? (
-               <span className="w-5 h-5 block border-2 border-azx-accent/30 border-t-azx-accent rounded-full animate-spin"></span>
-             ) : (
-               <Camera size={20} />
-             )}
-          </button>
-        </div>
-      </header>
-      <div className="flex flex-1 flex-col lg:flex-row overflow-hidden relative">
-        <div className="flex-1 flex flex-col relative overflow-hidden bg-azx-bg">
-          <div className="flex-1 overflow-auto flex flex-col items-center p-4 lg:p-8">
-            <div className="my-auto">
-              <div className="bg-white p-2 sm:p-4 rounded-xl shadow-2xl border-4 border-gray-200 inline-block transition-all duration-300">
-                <div 
-                  className="grid gap-px sm:gap-1 bg-gray-300 border border-gray-300"
-                  style={{ gridTemplateColumns: `repeat(${grid[0]?.length || 0}, minmax(0, 1fr))` }}
+      
+      {/* Main Sheet Container */}
+      <div className="flex-1 max-w-6xl w-full mx-auto my-4 lg:my-8 flex flex-col lg:flex-row gap-6 px-4 overflow-hidden">
+        
+        {/* Left Side: Puzzle Board */}
+        <div className="flex-1 flex flex-col bg-retro-paper border-4 border-retro-dark shadow-pixel overflow-hidden relative">
+          
+          {/* Header Bar */}
+          <div className="bg-retro-dark text-white p-3 flex items-center justify-between border-b-4 border-retro-dark shrink-0">
+             <div className="flex items-center gap-2">
+                <span className="text-retro-red font-bold">+</span>
+                <span className="text-xl tracking-widest">GAME GUIDE</span>
+                <span className="text-retro-red font-bold">+</span>
+             </div>
+             <div className="flex gap-2">
+                <button 
+                  onClick={goHome}
+                  className="bg-retro-red px-3 py-1 text-sm border-2 border-black/30 hover:bg-white hover:text-retro-red transition-colors"
                 >
-                  {grid.map((rowArr, rowIndex) => (
-                    rowArr.map((cellVal, colIndex) => {
-                      const isHighlighted = highlightedCells.has(`${rowIndex}-${colIndex}`);
-                      const isEmpty = cellVal === 0;
-                      if (isEmpty) {
-                        return (
-                          <div 
-                            key={`${rowIndex}-${colIndex}`}
-                            className={`relative w-7 h-9 sm:w-9 sm:h-11 lg:w-10 lg:h-12 bg-gray-200/50 rounded-sm flex items-center justify-center transition-colors ${isHighlighted ? 'bg-azx-accent/30 z-10' : ''}`}
-                          />
-                        );
-                      }
-                      return (
-                        <div 
-                          key={`${rowIndex}-${colIndex}`}
-                          className={`relative w-7 h-9 text-lg sm:w-9 sm:h-11 sm:text-xl lg:w-10 lg:h-12 lg:text-2xl flex items-center justify-center transition-all duration-200 font-mono font-bold ${isHighlighted ? 'bg-azx-accent text-white z-10 scale-105 shadow-lg' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
-                        >
-                          <input 
-                            type="tel"
-                            value={cellVal}
-                            onChange={(e) => updateCell(rowIndex, colIndex, e.target.value)}
-                            className={`w-full h-full text-center bg-transparent outline-none cursor-default focus:cursor-text p-0 m-0 ${isHighlighted ? 'text-white' : 'text-gray-100'} focus:bg-slate-800 focus:text-white focus:ring-2 focus:ring-blue-400 focus:z-20`}
-                            maxLength={1}
-                            inputMode="numeric"
-                          />
-                        </div>
-                      );
-                    })
-                  ))}
+                  EXIT
+                </button>
+             </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="bg-retro-grid border-b-4 border-retro-dark p-3 flex gap-3 shrink-0">
+             <button 
+                onClick={resetGrid}
+                className="p-2 bg-white border-2 border-retro-dark shadow-pixel-sm active:translate-y-0.5 active:shadow-none hover:bg-blue-50"
+                title="Reset"
+              >
+                <RotateCcw size={20} />
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 bg-white border-2 border-retro-dark shadow-pixel-sm active:translate-y-0.5 active:shadow-none hover:bg-blue-50"
+                title="Upload"
+              >
+                <Upload size={20} />
+              </button>
+              <button 
+                onClick={() => setIsCameraOpen(true)}
+                className="p-2 bg-retro-blue text-white border-2 border-retro-dark shadow-pixel-sm active:translate-y-0.5 active:shadow-none hover:bg-retro-blue-light"
+                title="Scan"
+              >
+                <Camera size={20} />
+              </button>
+          </div>
+
+          {/* Grid Area */}
+          <div className="flex-1 overflow-auto p-6 flex flex-col items-center bg-[#b8c2cf] relative notebook-lines">
+             {/* Decorative 'tape' */}
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-8 bg-retro-paper/50 rotate-1 border-x-2 border-white/20 blur-[1px]"></div>
+
+             <div className="my-auto relative">
+                <div className="bg-[#8b9bb4] p-4 border-4 border-white shadow-xl inline-block">
+                   <div 
+                      className="grid gap-1.5"
+                      style={{ gridTemplateColumns: `repeat(${grid[0]?.length || 0}, minmax(0, 1fr))` }}
+                    >
+                      {grid.map((rowArr, rowIndex) => (
+                        rowArr.map((cellVal, colIndex) => {
+                          const isHighlighted = highlightedCells.has(`${rowIndex}-${colIndex}`);
+                          const isEmpty = cellVal === 0;
+                          
+                          if (isEmpty) {
+                            return (
+                              <div 
+                                key={`${rowIndex}-${colIndex}`}
+                                className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-[#7a8a9f] bg-[#9caabf]/50 flex items-center justify-center"
+                              >
+                                 <div className="w-2 h-2 bg-[#7a8a9f] rounded-full opacity-50" />
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div 
+                              key={`${rowIndex}-${colIndex}`}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center font-bold text-3xl sm:text-4xl border-b-4 border-r-4 transition-transform duration-100 ${isHighlighted ? 'bg-retro-red text-white border-retro-dark -translate-y-1 shadow-lg z-10' : 'bg-retro-blue text-white border-[#3d5269] hover:brightness-110'}`}
+                            >
+                              <span className="drop-shadow-md">{cellVal}</span>
+                            </div>
+                          );
+                        })
+                      ))}
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div className="mt-6 flex items-center gap-2 text-gray-400 text-sm">
-              <Info size={16} />
-              <span className="hidden lg:inline">Hover to highlight. Click to select.</span>
-              <span className="lg:hidden">Tap items below to see solution on grid.</span>
-            </div>
+             </div>
+             
+             {/* Subtext */}
+             <div className="mt-6 bg-retro-dark text-white px-6 py-2 border-2 border-white shadow-lg text-lg tracking-widest">
+                {hoveredSolutionId ? ">> PREVIEW <<" : "AZX SERVICE TIME"}
+             </div>
           </div>
         </div>
-        <div className="shrink-0 h-[35vh] min-h-[200px] lg:h-full lg:w-96 lg:min-w-[320px] bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shadow-xl z-20 flex flex-col">
-          <SolutionSidebar 
+
+        {/* Right Side: Solutions List (Notebook Page) */}
+        <div className="h-[300px] lg:h-full lg:w-[400px] bg-retro-paper border-4 border-retro-dark shadow-pixel flex flex-col shrink-0">
+           <SolutionSidebar 
             solutions={solutions}
             hoveredSolutionId={hoveredSolutionId}
             onHoverSolution={setHoveredSolutionId}
@@ -457,6 +486,7 @@ const App: React.FC = () => {
             onApplySolution={applySolution}
           />
         </div>
+
       </div>
     </div>
   );

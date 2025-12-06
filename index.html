@@ -5,54 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AZX Solver</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
+              sans: ['"VT323"', 'monospace'],
             },
             colors: {
-              'azx-blue': '#2c3e50',
-              'azx-accent': '#3498db',
-              'azx-bg': '#ecf0f1',
-              'azx-card': '#ffffff',
+              'retro-paper': '#fffdf5',
+              'retro-dark': '#2d3342',
+              'retro-border': '#1a1c2c',
+              'retro-blue': '#5d7691', // Bucket color
+              'retro-blue-light': '#7a93b0',
+              'retro-red': '#d95763', // Accent red
+              'retro-green': '#99e550',
+              'retro-grid': '#e0e7ef',
+            },
+            boxShadow: {
+              'pixel': '4px 4px 0px 0px #2d3342',
+              'pixel-sm': '2px 2px 0px 0px #2d3342',
+              'pixel-lg': '8px 8px 0px 0px #2d3342',
+              'pixel-inset': 'inset 2px 2px 0px 0px rgba(0,0,0,0.2)',
             }
           },
         },
       }
     </script>
     <style>
-      ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-      
-      .animate-fade-in-down {
-        animation: fadeInDown 0.3s ease-out;
+      body {
+        background-color: #f0f4f8;
+        background-image: 
+          linear-gradient(#e0e7ef 1px, transparent 1px),
+          linear-gradient(90deg, #e0e7ef 1px, transparent 1px);
+        background-size: 20px 20px;
+        color: #2d3342;
       }
-      @keyframes fadeInDown {
-        from { opacity: 0; transform: translate(-50%, -10px); }
-        to { opacity: 1; transform: translate(-50%, 0); }
+
+      /* Force pixel art look */
+      * {
+        border-radius: 0px !important;
+      }
+
+      ::-webkit-scrollbar { width: 16px; height: 16px; }
+      ::-webkit-scrollbar-track { background: #fffdf5; border-left: 2px solid #2d3342; }
+      ::-webkit-scrollbar-thumb { background: #5d7691; border: 2px solid #2d3342; box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3); }
+      ::-webkit-scrollbar-thumb:hover { background: #2d3342; }
+      
+      .pixel-text-shadow {
+        text-shadow: 2px 2px 0px #e0e7ef;
+      }
+      
+      .notebook-lines {
+        background-image: repeating-linear-gradient(transparent, transparent 31px, #e0e7ef 31px, #e0e7ef 32px);
       }
     </style>
   <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.1/client",
     "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
-    "@google/genai": "https://esm.run/@google/genai"
+    "@google/genai": "https://esm.run/@google/genai",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-azx-bg text-gray-800 antialiased h-screen overflow-hidden">
+  <body class="antialiased h-screen overflow-hidden font-sans selection:bg-retro-red selection:text-white text-xl">
     <div id="root" class="h-full"></div>
+    <script type="text/babel" data-type="module" src="./index.tsx"></script>
   <script type="module" src="/index.tsx"></script>
 </body>
 </html>
